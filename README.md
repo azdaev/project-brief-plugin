@@ -2,29 +2,28 @@
 
 A Claude Code plugin that collects project requirements through interactive HTML forms and generates technical specifications.
 
-## What it does
+## Install
+
+In Claude Code, run:
+
+```
+/plugin marketplace add azdaev/project-brief-plugin
+/plugin install project-brief@amady-plugins
+```
+
+## Usage
 
 - `/project-brief` or `/brief` — Start collecting requirements for a new project
 - `/brief <type>` — Start with a specific project type (e.g., "web app", "CLI tool")
 - `/brief continue` — Continue from previous answers
 - `/brief spec` — Generate final technical specification
 
-The skill generates dark-themed HTML forms with progress tracking, multiple question types, and clipboard copy. It works in rounds — each round narrows down requirements until the spec is complete.
+## How it works
 
-## Install
+1. You run `/brief` and describe what you're building
+2. The plugin generates an interactive HTML form with questions about your project
+3. You fill it out in the browser and copy the answers back into chat
+4. It analyzes your answers, identifies gaps, and generates follow-up forms if needed
+5. Once everything is clear, it produces a full `SPEC.md` technical specification
 
-```
-/plugin marketplace add <your-github-username>/project-brief-plugin
-/plugin install project-brief@amady-plugins
-```
-
-## Structure
-
-```
-.claude-plugin/
-  marketplace.json    # Marketplace catalog
-  plugin.json         # Plugin manifest
-skills/
-  project-brief/
-    SKILL.md          # The skill definition
-```
+Forms feature a dark theme, progress tracking, multiple question types (radio, checkbox, text), and one-click clipboard copy.
