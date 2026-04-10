@@ -10,9 +10,6 @@
     {
       "name": "project-brief",
       "source": "./",
-      "description": "Collect project requirements through interactive HTML forms. Generates multi-step questionnaires, collects answers, identifies gaps, and produces a final technical specification.",
-      "version": "1.0.0",
-      "keywords": ["requirements", "spec", "brief", "planning", "forms"],
       "category": "productivity"
     }
   ]

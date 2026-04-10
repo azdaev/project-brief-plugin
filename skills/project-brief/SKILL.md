@@ -1,6 +1,7 @@
 ---
 name: project-brief
 description: Collect project requirements through interactive HTML forms. Generates multi-step questionnaires, collects answers, identifies gaps, and produces a final technical specification. Use when the user wants to define requirements, create a brief, write a spec, or plan a new project.
+argument-hint: "[project type | continue | spec]"
 ---
 
 # project-brief — requirements collection skill
@@ -25,10 +26,14 @@ No fixed round count. Stop when a reasonable engineer could start coding without
 
 ## arguments
 
-- `/project-brief` — start a new round 1 (ask what they're building first)
-- `/project-brief <type>` — start with a declared project type (e.g. "telegram bot", "web app", "CLI tool", "API", "browser extension")
-- `/project-brief continue` — continue from the last saved round (reads `.brief/state.json`)
-- `/project-brief spec` — assemble the final `SPEC.md` from all saved rounds
+The skill is invoked as `/project-brief:project-brief` (Claude Code namespaces all plugin skills with `<plugin>:<skill>`). Anything after the command is appended to the skill content as `ARGUMENTS:`. Recognized patterns:
+
+- **(no args)** — start a new round 1; ask the user what they're building first
+- **a project type** (e.g. `telegram bot`, `web app`, `CLI tool`, `API`, `browser extension`) — start round 1 with that type already declared, and tailor the questions accordingly
+- **`continue`** — continue from the last saved round (read `.brief/state.json` and pick up where the user left off)
+- **`spec`** — assemble the final `SPEC.md` from all saved `.brief/round-*-answers.md` files
+
+If the user invokes the skill with natural language instead of one of these keywords ("let's plan a chess app", "пора писать спеку"), treat that as `(no args)` plus context about what they're building.
 
 ## state: the `.brief/` directory
 

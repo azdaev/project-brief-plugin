@@ -1,5 +1,13 @@
 {
   "name": "project-brief",
+  "version": "1.0.0",
   "description": "Collect project requirements through interactive HTML forms. Generates multi-step questionnaires, collects answers, identifies gaps, and produces a final technical specification.",
-  "version": "1.0.0"
+  "author": {
+    "name": "Amadi Azdaev",
+    "url": "https://github.com/azdaev"
+  },
+  "homepage": "https://github.com/azdaev/project-brief-plugin",
+  "repository": "https://github.com/azdaev/project-brief-plugin",
+  "license": "MIT",
+  "keywords": ["requirements", "spec", "brief", "planning", "forms", "discovery"]
 }

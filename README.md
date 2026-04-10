@@ -13,14 +13,16 @@ In Claude Code, run:
 
 ## Usage
 
-- `/project-brief` — Start collecting requirements for a new project
-- `/project-brief <type>` — Start with a specific project type (e.g., "web app", "CLI tool", "telegram bot")
-- `/project-brief continue` — Continue from the last saved round
-- `/project-brief spec` — Generate the final technical specification
+The slash command is `/project-brief:project-brief` — Claude Code namespaces every plugin skill as `<plugin-name>:<skill-name>`, so the prefix is unavoidable. You can also just describe what you're building in natural language ("help me plan a habit-tracking app") and Claude will pick up the skill automatically.
+
+- `/project-brief:project-brief` — start collecting requirements for a new project
+- `/project-brief:project-brief <type>` — start with a specific project type, e.g. `web app`, `CLI tool`, `telegram bot`, `API`, `browser extension`
+- `/project-brief:project-brief continue` — continue from the last saved round
+- `/project-brief:project-brief spec` — assemble the final `SPEC.md` from all saved rounds
 
 ## How it works
 
-1. You run `/project-brief` and describe what you're building
+1. You invoke the skill (or just describe what you're building) and answer a few starter questions
 2. The plugin generates an interactive HTML form with questions tailored to the project type
 3. You fill it out in the browser and paste the copied answers back into chat
 4. It analyzes your answers, identifies gaps, and generates follow-up forms if needed
