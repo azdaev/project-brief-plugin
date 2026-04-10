@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>project brief</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --page: #ffffff;
+      --ink: #0a0a0a;
+      --pencil: #737373;
+      --graphite: #a3a3a3;
+      --rule: rgba(10, 10, 10, 0.08);
+      --rule-strong: rgba(10, 10, 10, 0.18);
+      --field: rgba(10, 10, 10, 0.04);
+      --field-focus: rgba(10, 10, 10, 0.065);
+      --toast-shadow: 0 1px 2px rgba(10, 10, 10, 0.06), 0 8px 24px rgba(10, 10, 10, 0.10);
+    }
+    html[data-theme="dark"] {
+      --page: #0a0a0a;
+      --ink: #fafafa;
+      --pencil: #8c8c8c;
+      --graphite: #525252;
+      --rule: rgba(250, 250, 250, 0.10);
+      --rule-strong: rgba(250, 250, 250, 0.22);
+      --field: rgba(250, 250, 250, 0.085);
+      --field-focus: rgba(250, 250, 250, 0.13);
+      --toast-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 240ms cubic-bezier(0.2, 0, 0, 1), color 240ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    ::selection { background: var(--ink); color: var(--page); }
+
+    .shell {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 32px 80px 32px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--pencil);
+      margin-bottom: 36px;
+    }
+
+    .theme-switch {
+      position: relative;
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: none;
+      color: var(--ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .theme-switch::before { content: ""; position: absolute; inset: -12px; }
+    .theme-switch svg {
+      display: block;
+      transition: transform 420ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    html[data-theme="dark"] .theme-switch svg { transform: rotate(180deg); }
+    .theme-switch:focus-visible { outline: none; }
+    .theme-switch:focus-visible svg circle { stroke-width: 1.6; }
+
+    .spine {
+      position: fixed;
+      top: 40px;
+      bottom: 40px;
+      left: max(24px, calc(50% - 300px - 56px));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+    .spine-track {
+      position: relative;
+      flex: 1;
+      width: 1px;
+      background: var(--rule-strong);
+    }
+    .spine-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 0;
+      background: var(--ink);
+      transition: height 380ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .spine-pct {
+      font-size: 11px;
+      color: var(--pencil);
+      font-variant-numeric: tabular-nums;
+      margin-top: 12px;
+      letter-spacing: 0.02em;
+    }
+
+    .section { margin: 0 0 36px; }
+    .section:last-of-type { margin-bottom: 12px; }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      margin: 0 0 14px;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .q { margin-bottom: 18px; }
+    .q-label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .q-label .req {
+      color: var(--pencil);
+      font-weight: 400;
+      margin-left: 6px;
+      font-size: 12px;
+    }
+    .q-hint {
+      display: block;
+      font-size: 12.5px;
+      color: var(--pencil);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    textarea {
+      display: block;
+      width: 100%;
+      background: var(--field);
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      resize: none;
+      transition: background-color 180ms cubic-bezier(0.2, 0, 0, 1), border-color 180ms;
+    }
+    textarea {
+      min-height: 56px;
+      line-height: 1.55;
+    }
+    input[type="text"]::placeholder,
+    textarea::placeholder { color: var(--graphite); }
+    input[type="text"]:hover,
+    textarea:hover { background: var(--field-focus); }
+    input[type="text"]:focus,
+    textarea:focus {
+      background: var(--field-focus);
+      border-color: var(--rule-strong);
+    }
+
+    .opts { list-style: none; padding: 0; margin: 0; }
+    .opts li {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .opts input[type="radio"],
+    .opts input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
+    .mark {
+      flex-shrink: 0;
+      width: 12px;
+      height: 12px;
+      margin-top: 5px;
+      border: 1px solid var(--rule-strong);
+      background: transparent;
+      position: relative;
+      transition: border-color 180ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .opts[data-type="radio"] .mark { border-radius: 50%; }
+    .opts[data-type="check"] .mark { border-radius: 2px; }
+    .opts li:hover .mark { border-color: var(--ink); }
+    .opts input:checked ~ .mark { border-color: var(--ink); }
+    .opts input:checked ~ .mark::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      background: var(--ink);
+    }
+    .opts[data-type="radio"] input:checked ~ .mark::after { border-radius: 50%; }
+    .opts[data-type="check"] input:checked ~ .mark::after { border-radius: 1px; }
+    .opts input:focus-visible ~ .mark {
+      box-shadow: 0 0 0 2px var(--page), 0 0 0 3px var(--ink);
+    }
+
+    .opt-body { flex: 1; min-width: 0; }
+    .opt-text { color: var(--ink); font-size: 14px; line-height: 1.45; }
+    .opt-other-input {
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+      background: var(--field);
+      border: 1px solid transparent;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 13px;
+      color: var(--ink);
+      outline: none;
+      transition: background-color 180ms, border-color 180ms;
+    }
+    .opt-other-input:focus {
+      background: var(--field-focus);
+      border-color: var(--rule-strong);
+    }
+    .opt-other-input:disabled { display: none; }
+
+    .opts li[data-other] { display: block; }
+    .opts li[data-other] > label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .opts li[data-other] > .opt-other-input {
+      margin-left: 22px;
+      width: calc(100% - 22px);
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--rule);
+    }
+    .action {
+      position: relative;
+      background: none;
+      border: none;
+      padding: 4px 0;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      border-bottom: 1px solid var(--rule-strong);
+      transition: border-bottom-color 180ms cubic-bezier(0.2, 0, 0, 1), color 180ms;
+    }
+    .action::before { content: ""; position: absolute; inset: -12px -8px; }
+    .action:hover { border-bottom-color: var(--ink); }
+    .action.quiet { color: var(--pencil); font-weight: 400; }
+    .action.quiet:hover { color: var(--ink); }
+    .action:focus-visible { outline: none; border-bottom-color: var(--ink); }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 6px);
+      background: var(--ink);
+      color: var(--page);
+      font-size: 12.5px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      box-shadow: var(--toast-shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1), transform 220ms cubic-bezier(0.2, 0, 0, 1);
+      z-index: 10;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 720px) {
+      .shell { padding: 32px 24px 72px 56px; max-width: none; }
+      .spine { left: 18px; top: 32px; bottom: 32px; }
+    }
+    @media (max-width: 480px) {
+      .shell { padding: 28px 18px 64px 44px; }
+      .spine { left: 12px; top: 28px; bottom: 28px; }
+      .meta { margin-bottom: 28px; }
+      .section { margin-bottom: 28px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="spine" aria-hidden="true">
+    <div class="spine-track">
+      <div class="spine-fill" id="spineFill"></div>
+    </div>
+    <div class="spine-pct"><span id="spinePct">0</span>%</div>
+  </aside>
+
+  <main class="shell">
+    <div class="meta">
+      <span>project brief &middot; round 1</span>
+      <button class="theme-switch" id="themeSwitch" type="button" aria-label="toggle theme">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1"></circle>
+          <path d="M 8 1.5 A 6.5 6.5 0 0 0 8 14.5 Z" fill="currentColor"></path>
+        </svg>
+      </button>
+    </div>
+
+    <form id="briefForm" autocomplete="off">
+
+      <section class="section">
+        <h2 class="section-title">overview</h2>
+
+        <div class="q">
+          <label class="q-label" for="q-name">project name<span class="req">required</span></label>
+          <input type="text" id="q-name" data-q="project name" data-required placeholder="e.g. kettlebell coach">
+        </div>
+
+        <div class="q">
+          <label class="q-label" for="q-pitch">one-line pitch<span class="req">required</span></label>
+          <span class="q-hint">finish the sentence: "it's a ___ that ___"</span>
+          <input type="text" id="q-pitch" data-q="one-line pitch" data-required>
+        </div>
+
+        <div class="q">
+          <label class="q-label" for="q-audience">who is it for</label>
+          <span class="q-hint">the specific person, not "users"</span>
+          <textarea id="q-audience" data-q="audience" placeholder="a hobbyist lifter in a garage gym, training alone"></textarea>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">core features</h2>
+
+        <div class="q">
+          <label class="q-label" for="q-features">features for v0.1<span class="req">required</span></label>
+          <span class="q-hint">one per line — things a user can do</span>
+          <textarea id="q-features" data-q="core features" data-required style="min-height: 96px;" placeholder="log a workout&#10;generate tomorrow's session&#10;see last week's volume"></textarea>
+        </div>
+
+        <div class="q">
+          <label class="q-label" for="q-signature">signature feature</label>
+          <span class="q-hint">the thing this product does that nothing else does quite the same way</span>
+          <input type="text" id="q-signature" data-q="signature feature">
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">user flow</h2>
+
+        <div class="q">
+          <label class="q-label" for="q-first-run">first 60 seconds</label>
+          <span class="q-hint">what they see, tap, type from the moment they land</span>
+          <textarea id="q-first-run" data-q="first-time experience" style="min-height: 80px;"></textarea>
+        </div>
+
+        <div class="q">
+          <label class="q-label">authentication</label>
+          <ul class="opts" data-type="radio" data-q="authentication">
+            <li><label style="display:contents;"><input type="radio" name="auth" value="none"><span class="mark"></span><span class="opt-body"><span class="opt-text">none — open to anyone</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="auth" value="magic-link"><span class="mark"></span><span class="opt-body"><span class="opt-text">email magic link</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="auth" value="oauth"><span class="mark"></span><span class="opt-body"><span class="opt-text">oauth — google, github, apple</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="auth" value="password"><span class="mark"></span><span class="opt-body"><span class="opt-text">email + password</span></span></label></li>
+            <li data-other><label><input type="radio" name="auth" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="auth" placeholder="describe..." disabled></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">tech stack</h2>
+
+        <div class="q">
+          <label class="q-label">primary language</label>
+          <ul class="opts" data-type="radio" data-q="primary language">
+            <li><label style="display:contents;"><input type="radio" name="stack" value="go"><span class="mark"></span><span class="opt-body"><span class="opt-text">go</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="stack" value="ts-node"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + node</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="stack" value="ts-next"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + next.js</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="stack" value="python"><span class="mark"></span><span class="opt-body"><span class="opt-text">python</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="stack" value="rust"><span class="mark"></span><span class="opt-body"><span class="opt-text">rust</span></span></label></li>
+            <li data-other><label><input type="radio" name="stack" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="stack" placeholder="describe..." disabled></li>
+          </ul>
+        </div>
+
+        <div class="q">
+          <label class="q-label">data storage</label>
+          <ul class="opts" data-type="check" data-q="data storage">
+            <li><label style="display:contents;"><input type="checkbox" name="storage" value="postgres"><span class="mark"></span><span class="opt-body"><span class="opt-text">postgres</span></span></label></li>
+            <li><label style="display:contents;"><input type="checkbox" name="storage" value="sqlite"><span class="mark"></span><span class="opt-body"><span class="opt-text">sqlite</span></span></label></li>
+            <li><label style="display:contents;"><input type="checkbox" name="storage" value="redis"><span class="mark"></span><span class="opt-body"><span class="opt-text">redis</span></span></label></li>
+            <li><label style="display:contents;"><input type="checkbox" name="storage" value="files"><span class="mark"></span><span class="opt-body"><span class="opt-text">flat files</span></span></label></li>
+            <li data-other><label><input type="checkbox" name="storage" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="storage" placeholder="describe..." disabled></li>
+          </ul>
+        </div>
+
+        <div class="q">
+          <label class="q-label" for="q-hosting">where will it run</label>
+          <input type="text" id="q-hosting" data-q="hosting" placeholder="fly.io, vercel, a raspberry pi, ...">
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">out of scope</h2>
+
+        <div class="q">
+          <label class="q-label" for="q-out">not in v0.1</label>
+          <span class="q-hint">tempting features you're deferring, and briefly why</span>
+          <textarea id="q-out" data-q="out of scope" style="min-height: 80px;" placeholder="social features — not until the core loop works&#10;mobile app — web works on phones for now"></textarea>
+        </div>
+
+        <div class="q">
+          <label class="q-label">done-ness for v0.1</label>
+          <ul class="opts" data-type="radio" data-q="v0.1 done">
+            <li><label style="display:contents;"><input type="radio" name="done" value="self"><span class="mark"></span><span class="opt-body"><span class="opt-text">i can use it daily myself</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="done" value="ten"><span class="mark"></span><span class="opt-body"><span class="opt-text">10 friends can sign up and use it</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="done" value="public"><span class="mark"></span><span class="opt-body"><span class="opt-text">it's publicly launched</span></span></label></li>
+            <li><label style="display:contents;"><input type="radio" name="done" value="paid"><span class="mark"></span><span class="opt-body"><span class="opt-text">someone has paid for it</span></span></label></li>
+            <li data-other><label><input type="radio" name="done" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="done" placeholder="describe..." disabled></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">open questions</h2>
+
+        <div class="q">
+          <label class="q-label" for="q-open">what you're unsure about</label>
+          <span class="q-hint">the next round will drill into these</span>
+          <textarea id="q-open" data-q="open questions" style="min-height: 96px;" placeholder="should the scheduler be cron or a real queue?&#10;how do i handle offline input?"></textarea>
+        </div>
+      </section>
+
+    </form>
+
+    <div class="actions">
+      <button type="button" class="action" id="copyBtn">copy answers</button>
+      <button type="button" class="action quiet" id="resetBtn">reset</button>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">copied to clipboard</div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'project-brief:round-1';
+      const THEME_KEY = 'project-brief:theme';
+
+      const form = document.getElementById('briefForm');
+      const sections = Array.from(form.querySelectorAll('.section'));
+      const spineFill = document.getElementById('spineFill');
+      const spinePct = document.getElementById('spinePct');
+      const themeSwitch = document.getElementById('themeSwitch');
+      const copyBtn = document.getElementById('copyBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const toast = document.getElementById('toast');
+
+      const themeMql = window.matchMedia('(prefers-color-scheme: dark)');
+      const applyTheme = () => {
+        const stored = localStorage.getItem(THEME_KEY);
+        const dark = stored ? stored === 'dark' : themeMql.matches;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      };
+      applyTheme();
+      themeMql.addEventListener('change', () => {
+        if (!localStorage.getItem(THEME_KEY)) applyTheme();
+      });
+      themeSwitch.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem(THEME_KEY, next);
+      });
+
+      function collectAnswers() {
+        const sectionData = [];
+        sections.forEach((section) => {
+          const title = (section.querySelector('.section-title') || {}).textContent || '';
+          const answers = [];
+          section.querySelectorAll('[data-q]').forEach((el) => {
+            const q = el.dataset.q;
+            if (el.tagName === 'INPUT' && el.type === 'text') {
+              answers.push({ q, value: el.value.trim(), type: 'text' });
+            } else if (el.tagName === 'TEXTAREA') {
+              answers.push({ q, value: el.value.trim(), type: 'textarea' });
+            } else if (el.classList && el.classList.contains('opts')) {
+              const type = el.dataset.type;
+              const inputs = el.querySelectorAll('input');
+              if (type === 'radio') {
+                let chosen = null;
+                inputs.forEach((inp) => {
+                  if (inp.checked) {
+                    if (inp.value === '__other__') {
+                      const otherInput = el.querySelector('.opt-other-input');
+                      chosen = otherInput && otherInput.value.trim() ? otherInput.value.trim() : '(other — blank)';
+                    } else {
+                      const textEl = inp.parentElement.querySelector('.opt-text');
+                      chosen = textEl ? textEl.textContent.trim() : inp.value;
+                    }
+                  }
+                });
+                answers.push({ q, value: chosen, type: 'radio' });
+              } else if (type === 'check') {
+                const picked = [];
+                inputs.forEach((inp) => {
+                  if (inp.checked) {
+                    if (inp.value === '__other__') {
+                      const otherInput = el.querySelector('.opt-other-input');
+                      if (otherInput && otherInput.value.trim()) picked.push(otherInput.value.trim());
+                    } else {
+                      const textEl = inp.parentElement.querySelector('.opt-text');
+                      picked.push(textEl ? textEl.textContent.trim() : inp.value);
+                    }
+                  }
+                });
+                answers.push({ q, value: picked, type: 'check' });
+              }
+            }
+          });
+          sectionData.push({ title: title.trim(), answers });
+        });
+        return sectionData;
+      }
+
+      function isAnswered(entry) {
+        if (entry.value == null) return false;
+        if (Array.isArray(entry.value)) return entry.value.length > 0;
+        return String(entry.value).trim().length > 0;
+      }
+
+      function updateProgress() {
+        const data = collectAnswers();
+        let total = 0, filled = 0;
+        data.forEach((section) => {
+          section.answers.forEach((a) => {
+            total++;
+            if (isAnswered(a)) filled++;
+          });
+        });
+        const pct = total === 0 ? 0 : Math.round((filled / total) * 100);
+        spineFill.style.height = pct + '%';
+        spinePct.textContent = pct;
+        persist();
+      }
+
+      function persist() {
+        const snapshot = {};
+        form.querySelectorAll('input[type="text"], textarea').forEach((el) => {
+          if (el.id) snapshot[el.id] = el.value;
+          else if (el.dataset.otherFor) snapshot['__other__' + el.dataset.otherFor] = el.value;
+        });
+        form.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach((el) => {
+          if (el.name) snapshot[el.name + ':' + el.value] = el.checked;
+        });
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot)); } catch (e) {}
+      }
+      function restore() {
+        let snapshot = {};
+        try { snapshot = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) {}
+        form.querySelectorAll('input[type="text"], textarea').forEach((el) => {
+          if (el.id && snapshot[el.id] != null) el.value = snapshot[el.id];
+          else if (el.dataset.otherFor && snapshot['__other__' + el.dataset.otherFor] != null) {
+            el.value = snapshot['__other__' + el.dataset.otherFor];
+          }
+        });
+        form.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach((el) => {
+          const key = el.name + ':' + el.value;
+          if (snapshot[key]) el.checked = true;
+        });
+        form.querySelectorAll('[data-other] input[type="radio"], [data-other] input[type="checkbox"]').forEach((inp) => {
+          if (inp.checked) {
+            const other = inp.closest('li').querySelector('.opt-other-input');
+            if (other) other.disabled = false;
+          }
+        });
+      }
+
+      form.querySelectorAll('[data-other]').forEach((li) => {
+        const input = li.querySelector('input[type="radio"], input[type="checkbox"]');
+        const other = li.querySelector('.opt-other-input');
+        if (!input || !other) return;
+
+        input.addEventListener('change', () => {
+          if (input.type === 'radio') {
+            const name = input.name;
+            form.querySelectorAll('input[name="' + name + '"]').forEach((sibling) => {
+              const siblingOther = sibling.closest('li').querySelector('.opt-other-input');
+              if (siblingOther) {
+                siblingOther.disabled = true;
+                if (sibling !== input) siblingOther.value = '';
+              }
+            });
+          }
+          if (input.checked) {
+            other.disabled = false;
+            setTimeout(() => other.focus(), 50);
+          } else {
+            other.disabled = true;
+          }
+        });
+
+        other.addEventListener('mousedown', () => {
+          if (!input.checked) {
+            input.checked = true;
+            other.disabled = false;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+        other.addEventListener('input', updateProgress);
+      });
+
+      form.querySelectorAll('.opts[data-type="radio"]').forEach((list) => {
+        list.querySelectorAll('input[type="radio"]').forEach((radio) => {
+          radio.addEventListener('change', () => {
+            if (radio.value !== '__other__') {
+              const other = list.querySelector('.opt-other-input');
+              if (other) { other.disabled = true; other.value = ''; }
+            }
+          });
+        });
+      });
+
+      form.addEventListener('input', updateProgress);
+      form.addEventListener('change', updateProgress);
+
+      function buildMarkdown(data) {
+        const lines = [];
+        lines.push('# project brief — round 1');
+        lines.push('');
+        data.forEach((section) => {
+          const any = section.answers.some(isAnswered);
+          if (!any) return;
+          lines.push('## ' + section.title);
+          section.answers.forEach((a) => {
+            if (!isAnswered(a)) return;
+            if (Array.isArray(a.value)) {
+              lines.push('**' + a.q + ':**');
+              a.value.forEach((v) => lines.push('- ' + v));
+            } else if (a.type === 'textarea') {
+              lines.push('**' + a.q + ':**');
+              lines.push('');
+              a.value.split('\n').forEach((line) => lines.push('> ' + line));
+            } else {
+              lines.push('**' + a.q + ':** ' + a.value);
+            }
+            lines.push('');
+          });
+        });
+        lines.push('```json');
+        lines.push(JSON.stringify({ round: 1, sections: data }, null, 2));
+        lines.push('```');
+        return lines.join('\n');
+      }
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => toast.classList.remove('show'), 1800);
+      }
+
+      copyBtn.addEventListener('click', async () => {
+        const md = buildMarkdown(collectAnswers());
+        try {
+          await navigator.clipboard.writeText(md);
+          showToast('copied to clipboard');
+        } catch (e) {
+          const ta = document.createElement('textarea');
+          ta.value = md;
+          ta.style.position = 'fixed';
+          ta.style.top = '-1000px';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); showToast('copied to clipboard'); }
+          catch (e2) { showToast('copy failed — select & copy manually'); }
+          document.body.removeChild(ta);
+        }
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (!confirm('clear all answers?')) return;
+        form.reset();
+        form.querySelectorAll('.opt-other-input').forEach((el) => { el.value = ''; el.disabled = true; });
+        localStorage.removeItem(STORAGE_KEY);
+        updateProgress();
+        showToast('cleared');
+      });
+
+      restore();
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>

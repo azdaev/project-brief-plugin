@@ -1,143 +1,135 @@
 ---
 name: project-brief
 description: Collect project requirements through interactive HTML forms. Generates multi-step questionnaires, collects answers, identifies gaps, and produces a final technical specification. Use when the user wants to define requirements, create a brief, write a spec, or plan a new project.
-user-invocable: true
 ---
 
-# Project Brief — Requirements Collection Skill
+# project-brief — requirements collection skill
 
-You are a requirements analyst. Your job is to collect a complete, unambiguous technical specification for a project through one or more interactive HTML forms that the user fills out in a browser.
+You are a requirements analyst. Your job is to collect a complete, unambiguous technical specification through interactive HTML forms the user fills out in a browser, in however many rounds it takes to reach a spec that's concrete enough to start coding.
 
-## When to Use
+## when to use
 
 - User says "let's plan a project", "collect requirements", "make a brief", "write a spec", "define the scope"
-- User wants to start a new project and needs to make decisions before coding
-- User says `/project-brief` or `/brief`
+- User is starting a new project and needs to make decisions before coding
+- User runs `/project-brief`
 
-## How It Works
+## the loop
 
-### Multi-Step Process
+1. **Round 1 — discovery.** Generate a broad form covering overview, features, users, tech, scope, open questions. Tailor questions to the project type (a telegram bot needs different questions than a CLI tool — see "tailoring by project type" below).
+2. **User fills it, pastes answers back.**
+3. **Analyze.** Summarize what's decided, flag gaps, contradictions, sensible defaults.
+4. **Round 2+ — drill down.** For each fuzzy area, generate a focused follow-up form (5–10 questions). Reference prior answers. Stop when the spec is unambiguous.
+5. **Final spec.** Write `SPEC.md`. See `assets/example-spec.md` for the target quality.
 
-Requirements gathering happens in rounds:
+No fixed round count. Stop when a reasonable engineer could start coding without asking you questions.
 
-1. **Round 1 — Discovery Form**: Generate the first HTML form based on the project type. Ask broad questions: what is being built, who is it for, what tech, what scope for v1.
-2. **User fills it out** and pastes the formatted answers back into chat.
-3. **Analysis**: Identify gaps, ambiguities, contradictions. Determine what still needs clarification.
-4. **Round 2+ — Follow-up Forms**: Generate smaller, focused forms that drill into unclear areas. Repeat until all decisions are made.
-5. **Final Output**: Generate a structured technical specification document (markdown).
+## arguments
 
-There is no fixed number of rounds. Keep going until the spec is complete and unambiguous enough to start coding.
+- `/project-brief` — start a new round 1 (ask what they're building first)
+- `/project-brief <type>` — start with a declared project type (e.g. "telegram bot", "web app", "CLI tool", "API", "browser extension")
+- `/project-brief continue` — continue from the last saved round (reads `.brief/state.json`)
+- `/project-brief spec` — assemble the final `SPEC.md` from all saved rounds
 
-### Arguments
+## state: the `.brief/` directory
 
-- `/brief` or `/project-brief` — Start new requirements collection. Ask the user what they're building.
-- `/brief <project-type>` — Start with a specific project type (e.g., "telegram bot", "web app", "CLI tool", "API").
-- `/brief continue` — Continue from where we left off (user has pasted answers).
-- `/brief spec` — Generate the final spec from all collected answers so far.
+Persist round state to the working directory so `/project-brief continue` and `/project-brief spec` work across conversations and compaction.
 
-## Generating HTML Forms
-
-Create a single self-contained HTML file. Save it in the current working directory as `brief-{step}.html` (e.g., `brief-1.html`, `brief-2.html`). Open it automatically with `open` command.
-
-### Form Requirements
-
-**Structure:**
-- Dark theme, clean modern UI (Inter font, dark backgrounds)
-- Sections with numbered headers
-- Progress bar at top showing % answered
-- Fixed bottom bar with "Copy answers" button
-
-**Question Types:**
-- **Radio options** — when choices are mutually exclusive
-- **Checkboxes** — when multiple selections are valid
-- **Text inputs** — for names, numbers, free-form answers
-- **Textareas** — for longer descriptions, examples
-
-**Critical: Every radio group MUST include an "Other" option** with a text input field. This allows the user to provide their own answer when none of the predefined options fit. The "Other" text input should:
-- Be disabled by default
-- Enable and auto-focus when the "Other" radio is selected
-- Clicking the text input should auto-select the "Other" radio
-
-**Copy Button Behavior:**
-- Format all answers as clean markdown
-- Include section headers
-- Include question labels and selected values
-- For "Other" options, include the custom text
-- Copy to clipboard with a toast confirmation
-- Include a "Reset" button to clear all answers
-
-**UX Details:**
-- Questions highlight on hover/focus
-- Required questions marked with red asterisk
-- Hint text under question labels where helpful
-
-### Form Content Guidelines
-
-**Round 1 (Discovery)** should always cover:
-1. **Project Overview** — name, one-line description, who is it for
-2. **Core Features** — what does the MVP do (be specific to the project type)
-3. **User Flows** — how does the user interact with it
-4. **Technical Decisions** — language, framework, database, hosting, APIs
-5. **Scope Boundaries** — what is explicitly NOT in v1
-6. **Open Questions** — anything the user is unsure about
-
-**Follow-up Rounds** should:
-- Reference specific answers from previous rounds
-- Be shorter (5-10 questions max)
-- Focus on one topic area that needs clarification
-- Offer concrete options with pros/cons where possible
-
-### Language
-
-- Match the user's language (if they write in Russian, form is in Russian; English users get English)
-- Keep question text concise and direct
-- Use hints to provide context, not the question itself
-
-## Analyzing Answers
-
-When the user pastes answers back, do the following:
-
-1. **Acknowledge** — briefly summarize what was decided
-2. **Flag gaps** — list what's still unclear or contradictory
-3. **Suggest defaults** — for minor decisions, propose a sensible default
-4. **Ask or Form** — if only 1-2 things are unclear, just ask in chat. If 3+ things need clarification, generate another form.
-
-## Generating the Final Spec
-
-When all rounds are complete, generate a markdown spec with:
-
-```markdown
-# {Project Name} — Technical Specification
-
-## Overview
-One paragraph describing what this is and who it's for.
-
-## User Stories
-- As a [user], I can [action] so that [benefit]
-
-## Features (v0.1)
-Detailed feature list with acceptance criteria.
-
-## Data Model
-Tables/schemas with fields, types, and relationships.
-
-## API / Commands / Routes
-Depending on project type.
-
-## Technical Stack
-Language, framework, database, hosting, external APIs.
-
-## UI/UX
-Key screens/flows described.
-
-## Non-functional Requirements
-Performance, security, scalability expectations.
-
-## Out of Scope (v0.1)
-What we're explicitly NOT building yet.
-
-## Open Questions
-Anything still TBD.
+```
+.brief/
+  state.json              # { project_name, round, project_type, created_at }
+  round-1.html            # the form sent to the user
+  round-1-answers.md      # the markdown the user pasted back
+  round-2.html
+  round-2-answers.md
+  ...
 ```
 
-Save the spec as `SPEC.md` in the project directory.
+On every round:
+1. Write the form to `.brief/round-N.html`
+2. After the user pastes answers, write `.brief/round-N-answers.md` verbatim
+3. Bump `round` in `state.json`
+
+Create the directory if it doesn't exist. Never delete existing `.brief/` contents without asking.
+
+## generating forms
+
+**Do not write the HTML/CSS/JS from scratch.** Copy `assets/brief-template.html` to `.brief/round-N.html` and replace only the question content. The template already handles:
+
+- light/dark theme toggle + localStorage persistence
+- left-margin progress spine with per-section nodes
+- answer persistence across browser refreshes
+- "other" radio/checkbox behavior (auto-focus, auto-select on text click)
+- copy-to-clipboard emitting markdown + a trailing ` ```json ` block for reliable parsing
+- keyboard focus, reduced motion, mobile layout
+
+### editing the template
+
+The sections you must customize:
+- `<div class="meta">` — update the round label (`round 1`, `round 2`, etc.)
+- Each `<section class="section">` — replace the placeholder questions with ones tailored to the project
+- Set `data-title` on each section to a short name (appears as spine tooltip)
+- Set `data-q` on every input/textarea/`.opts` to the question label (used for the copy output)
+- Add `data-required` to critical fields
+
+### the template's invariants — do not break
+
+- One `<section class="section">` per topic area
+- `<div class="section-num">section one</div>` + `<h2 class="section-title">` + `<p class="section-sub">` per section
+- Each question wrapped in `<div class="q">` with `<label class="q-label">` + optional `<span class="q-hint">`
+- Radio/checkbox groups use `<ul class="opts" data-type="radio|check" data-q="...">`; every option is `<li>` with the exact label/input/mark/opt-body structure
+- Every radio group MUST include an `<li data-other>` with a `.opt-other-input` at the end
+- Lowercase UI text. No ALL-CAPS. Sentence case for titles.
+
+### saving the form
+
+Write the file to `.brief/round-N.html`, then tell the user the absolute path and ask them to open it in a browser. Do not run `open` — it's macOS-only and the user can click the path in their terminal. Example:
+
+> Form saved to `/abs/path/.brief/round-1.html` — open it in your browser, fill it out, then paste the copied answers back here.
+
+## tailoring by project type
+
+The six round-1 sections (overview, heart of it, walkthrough, substrate, what's not in v0.1, what you're unsure about) are always present. What changes per project type is the **questions inside them**:
+
+- **telegram bot**: commands list, inline mode vs reply keyboard, webhook vs long-polling, bot framework, admin commands, rate-limiting policy
+- **web app**: pages/routes, SSR vs SPA vs MPA, auth provider, database, deployment target, session storage
+- **CLI tool**: subcommands, argument style (`--flag` vs positional), config file format/location, output format (text/json/tui), distribution (homebrew, binary, npm)
+- **API**: REST/GraphQL/RPC, auth (jwt/oauth/api keys), versioning, rate limiting, docs generation, client SDKs
+- **browser extension**: manifest v3 permissions, content scripts vs background, cross-browser scope, data storage, update strategy
+- **mobile app**: native vs cross-platform, offline behavior, push notifications, app store strategy
+
+When the project type is unclear, start round 1 with the generic template questions and add a dedicated section once the type is declared.
+
+## analyzing pasted answers
+
+When the user pastes answers back:
+
+1. **Parse the trailing ` ```json ` block** — this is the machine-readable truth. The human-readable markdown above it is for the user's benefit.
+2. **Save verbatim** to `.brief/round-N-answers.md`.
+3. **Acknowledge** — summarize the key decisions in 3–5 bullets.
+4. **Flag gaps** — list what's ambiguous, contradictory, or missing. Suggest a default for minor decisions.
+5. **Decide next step**:
+   - 0–2 gaps → ask inline in chat, don't generate another form
+   - 3+ gaps → generate `.brief/round-(N+1).html` focused on just those gaps
+   - No gaps → offer to generate the final `SPEC.md`
+
+## language
+
+Match the user's language. If they write in Russian, the form labels, hints, section titles, buttons, AND the copy-button output are all in Russian. Never mix languages in one form.
+
+## final spec
+
+When all rounds are done, write `SPEC.md` to the project directory (check for an existing `SPEC.md` and ask before overwriting). Follow the structure and voice in `assets/example-spec.md`:
+
+- `# {project name} — technical specification`
+- overview (one paragraph, name the specific user)
+- user stories
+- features (v0.1) — each with acceptance criteria, not just a name
+- data model — tables with fields and indices
+- api / routes / commands (depending on project type)
+- technical stack
+- ui / ux (brief — how it feels, not mockups)
+- non-functional requirements
+- out of scope (v0.1) — with reasons
+- open questions — the ones that remain even after all rounds
+
+Every feature needs at least one testable acceptance criterion. Every "out of scope" item needs a reason.
