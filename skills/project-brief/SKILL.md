@@ -59,6 +59,8 @@ Create the directory if it doesn't exist. Never delete existing `.brief/` conten
 - left-margin progress spine with per-section nodes
 - answer persistence across browser refreshes
 - "other" radio/checkbox behavior (auto-focus, auto-select on text click)
+- "let claude decide" defer option (mutual exclusion in checkbox groups)
+- expandable "?" explanations for jargon-heavy questions
 - copy-to-clipboard emitting markdown + a trailing ` ```json ` block for reliable parsing
 - keyboard focus, reduced motion, mobile layout
 
@@ -77,7 +79,7 @@ The sections you must customize:
 - `<div class="section-num">section one</div>` + `<h2 class="section-title">` + `<p class="section-sub">` per section
 - Each question wrapped in `<div class="q">` with `<label class="q-label">` + optional `<span class="q-hint">`
 - Radio/checkbox groups use `<ul class="opts" data-type="radio|check" data-q="...">`; every option is `<li>` with the exact label/input/mark/opt-body structure
-- **Every radio AND every checkbox group MUST include an `<li data-other>` with a `.opt-other-input` at the end.** No exceptions, even if you think the listed options cover everything — they never do.
+- **Every option group MUST end with both `<li data-other>` and `<li data-defer>`, in that order.** No exceptions. The "other" line covers options you didn't think of; the "let claude decide" line covers users who don't want to choose. Both safety nets are non-negotiable.
 - Lowercase UI text. No ALL-CAPS. Sentence case for titles.
 
 ### checkbox groups can combine listed options + "other"
@@ -108,6 +110,60 @@ Rules for recommendations:
 - **Don't pre-select the recommendation.** It's a suggestion, not a default. The visual `recommended` label is enough.
 - The recommendation gets serialized into the JSON output as `recommendations: [{ option, note }]` per question, so when the user pastes answers back, you can see what you suggested vs what they picked.
 
+### plain-language hints for jargon (`q-hint`)
+
+Every question whose label contains a jargon term (anything a non-developer wouldn't recognize: "authentication", "primary language", "data storage", "hosting", "deployment", "schema", "endpoint", "webhook", etc.) **must** have a `<span class="q-hint">` immediately after the label that re-asks the same question without the jargon. Examples:
+
+- *authentication* → "how do people get into the app — open to anyone, or do they sign in?"
+- *primary language* → "what the code is written in — pick whichever your developer knows, or let claude pick"
+- *data storage* → "where the app's data lives — accounts, content, history, settings"
+- *hosting* → "where the app actually lives — a cloud service, your laptop, a phone"
+- *webhook* → "a way for another service to ping your app when something happens"
+
+The hint is not optional decoration. If a non-coder can't read the question without it, the form is broken. Skip the hint only when the label itself is already plain language ("project name", "who is it for", "what you're unsure about").
+
+### letting the user defer to you (`data-defer`)
+
+Every option group ends with `<li data-defer>` — a "let claude decide" choice. It's an escape hatch for users who don't have an opinion and don't want to fake one:
+
+```html
+<li data-defer>
+  <label style="display:contents;">
+    <input type="radio" name="auth" value="__defer__">
+    <span class="mark"></span>
+    <span class="opt-body"><span class="opt-text">let claude decide</span></span>
+  </label>
+</li>
+```
+
+For radio groups it's just another radio (native exclusivity). For checkbox groups the template's JS makes it mutually exclusive with real picks: ticking defer clears all other checkboxes; ticking any other checkbox clears defer.
+
+When deferred, the JSON entry gets `deferred: true` and the markdown shows `_(let claude decide)_`. When you parse a deferred answer, **you** are responsible for picking a sensible default and writing it into the spec — and the spec must mark it as your decision (e.g. "auth: magic link _(claude's pick — user deferred)_") so the user can see at a glance which decisions were theirs and which were yours.
+
+Use the same `let claude decide` text in English; in other languages, translate it (e.g. "пусть клод решит" in Russian). Never call it anything more demeaning like "skip" or "i don't know".
+
+### explaining a question (`data-explain`)
+
+For questions where even the plain-language hint isn't enough — the concept itself is unfamiliar — add a collapsible explanation panel. It's a `<div class="q-explain" hidden>` *inside* the `<div class="q">`, after the hint and before the input. The template's JS auto-creates a small `?` button next to the label that toggles it.
+
+```html
+<div class="q">
+  <label class="q-label">authentication</label>
+  <span class="q-hint">how do people get into the app — open to anyone, or do they sign in?</span>
+  <div class="q-explain" hidden>
+    <p>Authentication is the "sign in" part of an app. Pick <strong>none</strong> if anyone can use it without an account...</p>
+    <p>The simplest sign-in is the <strong>magic link</strong>: they type their email, get a one-click link, no password to remember.</p>
+  </div>
+  <ul class="opts" data-type="radio" data-q="authentication">...</ul>
+</div>
+```
+
+Rules for explanations:
+- **1–3 short paragraphs**, never more. If you need a wall of text, the question itself is wrong — split it.
+- **Always include a concrete example** ("a public calculator", "an order in a shop", "your laptop at home") so the abstract concept lands.
+- **Bold the option names** when you explain what each one means, so a user reading the panel can map back to the radio list.
+- **Skip explanations for plain-language questions.** "what you're unsure about" doesn't need a panel. The button only appears if a `.q-explain` exists in the `.q`, so just don't add the div.
+
 ### saving the form
 
 Write the file to `.brief/round-N.html`, then tell the user the absolute path and ask them to open it in a browser. Do not run `open` — it's macOS-only and the user can click the path in their terminal. Example:
@@ -134,9 +190,10 @@ When the user pastes answers back:
 1. **Parse the trailing ` ```json ` block** — this is the machine-readable truth. The human-readable markdown above it is for the user's benefit.
 2. **Save verbatim** to `.brief/round-N-answers.md`.
 3. **Acknowledge** — summarize the key decisions in 3–5 bullets.
-4. **Compare against your recommendations.** For every question that had `recommendations` in the JSON, check if the user picked the recommended option. If they went with something else, that's signal — ask one short follow-up about why (they may have a constraint you didn't know about), or just note it and move on if the alternative is reasonable. Don't lecture them.
-5. **Flag gaps** — list what's ambiguous, contradictory, or missing. Suggest a default for minor decisions.
-6. **Decide next step**:
+4. **Resolve deferred answers.** For every entry with `deferred: true`, pick a sensible default *now*, not later. Use the project type, the rest of the answers, and your own recommendations as context. In your acknowledgment back to the user, list the defaults you picked in a separate "decisions i made for you" section so they can override anything that feels wrong. In the final spec, every defaulted decision gets a `_(claude's pick — user deferred)_` marker so the user can scan which calls were theirs.
+5. **Compare against your recommendations.** For every question that had `recommendations` in the JSON, check if the user picked the recommended option. If they went with something else, that's signal — ask one short follow-up about why (they may have a constraint you didn't know about), or just note it and move on if the alternative is reasonable. Don't lecture them.
+6. **Flag gaps** — list what's ambiguous, contradictory, or missing. Suggest a default for minor decisions.
+7. **Decide next step**:
    - 0–2 gaps → ask inline in chat, don't generate another form
    - 3+ gaps → generate `.brief/round-(N+1).html` focused on just those gaps
    - No gaps → offer to generate the final `SPEC.md`
