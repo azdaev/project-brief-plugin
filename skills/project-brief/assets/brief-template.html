@@ -223,6 +223,18 @@
 
     .opt-body { flex: 1; min-width: 0; }
     .opt-text { color: var(--ink); font-size: 14px; line-height: 1.45; }
+    .opt-rec {
+      display: block;
+      font-size: 12px;
+      color: var(--pencil);
+      margin-top: 3px;
+      line-height: 1.45;
+    }
+    .opt-rec strong {
+      font-weight: 500;
+      color: var(--ink);
+      opacity: 0.62;
+    }
     .opt-other-input {
       display: block;
       width: 100%;
@@ -404,7 +416,7 @@
           <ul class="opts" data-type="radio" data-q="primary language">
             <li><label style="display:contents;"><input type="radio" name="stack" value="go"><span class="mark"></span><span class="opt-body"><span class="opt-text">go</span></span></label></li>
             <li><label style="display:contents;"><input type="radio" name="stack" value="ts-node"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + node</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="stack" value="ts-next"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + next.js</span></span></label></li>
+            <li data-recommended><label style="display:contents;"><input type="radio" name="stack" value="ts-next"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + next.js</span><span class="opt-rec"><strong>recommended</strong> — biggest ecosystem, easiest hosting, fastest from zero to deployed for a web project</span></span></label></li>
             <li><label style="display:contents;"><input type="radio" name="stack" value="python"><span class="mark"></span><span class="opt-body"><span class="opt-text">python</span></span></label></li>
             <li><label style="display:contents;"><input type="radio" name="stack" value="rust"><span class="mark"></span><span class="opt-body"><span class="opt-text">rust</span></span></label></li>
             <li data-other><label><input type="radio" name="stack" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="stack" placeholder="describe..." disabled></li>
@@ -414,7 +426,7 @@
         <div class="q">
           <label class="q-label">data storage</label>
           <ul class="opts" data-type="check" data-q="data storage">
-            <li><label style="display:contents;"><input type="checkbox" name="storage" value="postgres"><span class="mark"></span><span class="opt-body"><span class="opt-text">postgres</span></span></label></li>
+            <li data-recommended><label style="display:contents;"><input type="checkbox" name="storage" value="postgres"><span class="mark"></span><span class="opt-body"><span class="opt-text">postgres</span><span class="opt-rec"><strong>recommended</strong> — relational, mature, handles millions of rows without tuning, runs anywhere</span></span></label></li>
             <li><label style="display:contents;"><input type="checkbox" name="storage" value="sqlite"><span class="mark"></span><span class="opt-body"><span class="opt-text">sqlite</span></span></label></li>
             <li><label style="display:contents;"><input type="checkbox" name="storage" value="redis"><span class="mark"></span><span class="opt-body"><span class="opt-text">redis</span></span></label></li>
             <li><label style="display:contents;"><input type="checkbox" name="storage" value="files"><span class="mark"></span><span class="opt-body"><span class="opt-text">flat files</span></span></label></li>
@@ -501,6 +513,20 @@
         localStorage.setItem(THEME_KEY, next);
       });
 
+      function collectRecommendations(list) {
+        const recs = [];
+        list.querySelectorAll('li[data-recommended]').forEach((li) => {
+          const optEl = li.querySelector('.opt-text');
+          const recEl = li.querySelector('.opt-rec');
+          if (!optEl) return;
+          recs.push({
+            option: optEl.textContent.trim(),
+            note: recEl ? recEl.textContent.replace(/\s+/g, ' ').trim() : ''
+          });
+        });
+        return recs;
+      }
+
       function collectAnswers() {
         const sectionData = [];
         sections.forEach((section) => {
@@ -515,6 +541,7 @@
             } else if (el.classList && el.classList.contains('opts')) {
               const type = el.dataset.type;
               const inputs = el.querySelectorAll('input');
+              const recommendations = collectRecommendations(el);
               if (type === 'radio') {
                 let chosen = null;
                 inputs.forEach((inp) => {
@@ -528,7 +555,9 @@
                     }
                   }
                 });
-                answers.push({ q, value: chosen, type: 'radio' });
+                const entry = { q, value: chosen, type: 'radio' };
+                if (recommendations.length) entry.recommendations = recommendations;
+                answers.push(entry);
               } else if (type === 'check') {
                 const picked = [];
                 inputs.forEach((inp) => {
@@ -542,7 +571,9 @@
                     }
                   }
                 });
-                answers.push({ q, value: picked, type: 'check' });
+                const entry = { q, value: picked, type: 'check' };
+                if (recommendations.length) entry.recommendations = recommendations;
+                answers.push(entry);
               }
             }
           });

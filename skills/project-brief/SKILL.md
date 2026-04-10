@@ -77,8 +77,36 @@ The sections you must customize:
 - `<div class="section-num">section one</div>` + `<h2 class="section-title">` + `<p class="section-sub">` per section
 - Each question wrapped in `<div class="q">` with `<label class="q-label">` + optional `<span class="q-hint">`
 - Radio/checkbox groups use `<ul class="opts" data-type="radio|check" data-q="...">`; every option is `<li>` with the exact label/input/mark/opt-body structure
-- Every radio group MUST include an `<li data-other>` with a `.opt-other-input` at the end
+- **Every radio AND every checkbox group MUST include an `<li data-other>` with a `.opt-other-input` at the end.** No exceptions, even if you think the listed options cover everything — they never do.
 - Lowercase UI text. No ALL-CAPS. Sentence case for titles.
+
+### checkbox groups can combine listed options + "other"
+
+In a checkbox group, the user can tick `postgres`, `redis`, AND fill in `supabase` in the "other" field — all three end up in the answer array. Use checkbox + "other" whenever a question is "pick any that apply, including things i didn't list". Don't apologize for short option lists; the "other" field is the safety net.
+
+### recommending an option (`data-recommended`)
+
+For technical questions where a non-developer might be lost (frontend framework, database, hosting, auth, deployment target, config format), mark one option as recommended and explain *why* in one short line. Add `data-recommended` to the `<li>` and a `<span class="opt-rec">` inside `.opt-body`:
+
+```html
+<li data-recommended>
+  <label style="display:contents;">
+    <input type="radio" name="frontend" value="next">
+    <span class="mark"></span>
+    <span class="opt-body">
+      <span class="opt-text">next.js</span>
+      <span class="opt-rec"><strong>recommended</strong> — biggest ecosystem, easiest hosting, fastest from zero to deployed for a web project</span>
+    </span>
+  </label>
+</li>
+```
+
+Rules for recommendations:
+- **Only for technical/architectural choices**, never for taste questions (project name, audience, what to build). Don't recommend a feature scope or a "done-ness" definition — those belong to the user.
+- **Always include the why**, in one line, in plain language a non-developer can parse. "fastest", "free for hobby projects", "no server to maintain", "you can run it on your laptop" — concrete tradeoffs, not jargon.
+- **Recommend at most one option per radio group.** For checkboxes you can recommend a couple if they're commonly paired (e.g. `postgres` + `redis`), but don't go nuts.
+- **Don't pre-select the recommendation.** It's a suggestion, not a default. The visual `recommended` label is enough.
+- The recommendation gets serialized into the JSON output as `recommendations: [{ option, note }]` per question, so when the user pastes answers back, you can see what you suggested vs what they picked.
 
 ### saving the form
 
@@ -106,8 +134,9 @@ When the user pastes answers back:
 1. **Parse the trailing ` ```json ` block** — this is the machine-readable truth. The human-readable markdown above it is for the user's benefit.
 2. **Save verbatim** to `.brief/round-N-answers.md`.
 3. **Acknowledge** — summarize the key decisions in 3–5 bullets.
-4. **Flag gaps** — list what's ambiguous, contradictory, or missing. Suggest a default for minor decisions.
-5. **Decide next step**:
+4. **Compare against your recommendations.** For every question that had `recommendations` in the JSON, check if the user picked the recommended option. If they went with something else, that's signal — ask one short follow-up about why (they may have a constraint you didn't know about), or just note it and move on if the alternative is reasonable. Don't lecture them.
+5. **Flag gaps** — list what's ambiguous, contradictory, or missing. Suggest a default for minor decisions.
+6. **Decide next step**:
    - 0–2 gaps → ask inline in chat, don't generate another form
    - 3+ gaps → generate `.brief/round-(N+1).html` focused on just those gaps
    - No gaps → offer to generate the final `SPEC.md`
