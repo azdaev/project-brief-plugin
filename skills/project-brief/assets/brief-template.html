@@ -187,11 +187,15 @@
     .opts { list-style: none; padding: 0; margin: 0; }
     .opts li {
       position: relative;
+      cursor: pointer;
+    }
+    .opts li > label {
       display: flex;
       align-items: flex-start;
       gap: 10px;
       padding: 6px 0;
       cursor: pointer;
+      width: 100%;
     }
     .opts input[type="radio"],
     .opts input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
@@ -256,12 +260,6 @@
     .opt-other-input:disabled { display: none; }
 
     .opts li[data-other] { display: block; }
-    .opts li[data-other] > label {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      cursor: pointer;
-    }
     .opts li[data-other] > .opt-other-input {
       margin-left: 22px;
       width: calc(100% - 22px);
@@ -462,12 +460,12 @@
             <p>The simplest sign-in is the <strong>magic link</strong>: they type their email, get a one-click link, no password to remember. <strong>OAuth</strong> means "sign in with Google/GitHub/Apple" — fast for users, but you have to set up an account with each provider.</p>
           </div>
           <ul class="opts" data-type="radio" data-q="authentication">
-            <li><label style="display:contents;"><input type="radio" name="auth" value="none"><span class="mark"></span><span class="opt-body"><span class="opt-text">none — open to anyone</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="auth" value="magic-link"><span class="mark"></span><span class="opt-body"><span class="opt-text">email magic link</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="auth" value="oauth"><span class="mark"></span><span class="opt-body"><span class="opt-text">oauth — google, github, apple</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="auth" value="password"><span class="mark"></span><span class="opt-body"><span class="opt-text">email + password</span></span></label></li>
+            <li><label><input type="radio" name="auth" value="none"><span class="mark"></span><span class="opt-body"><span class="opt-text">none — open to anyone</span></span></label></li>
+            <li><label><input type="radio" name="auth" value="magic-link"><span class="mark"></span><span class="opt-body"><span class="opt-text">email magic link</span></span></label></li>
+            <li><label><input type="radio" name="auth" value="oauth"><span class="mark"></span><span class="opt-body"><span class="opt-text">oauth — google, github, apple</span></span></label></li>
+            <li><label><input type="radio" name="auth" value="password"><span class="mark"></span><span class="opt-body"><span class="opt-text">email + password</span></span></label></li>
             <li data-other><label><input type="radio" name="auth" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="auth" placeholder="describe..." disabled></li>
-            <li data-defer><label style="display:contents;"><input type="radio" name="auth" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
+            <li data-defer><label><input type="radio" name="auth" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
           </ul>
         </div>
       </section>
@@ -483,13 +481,13 @@
             <p>If you're not coding it yourself, just <strong>let claude decide</strong> — claude will pick a sensible default for the kind of project you're building, and you can hand the result to any developer who works with that language.</p>
           </div>
           <ul class="opts" data-type="radio" data-q="primary language">
-            <li><label style="display:contents;"><input type="radio" name="stack" value="go"><span class="mark"></span><span class="opt-body"><span class="opt-text">go</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="stack" value="ts-node"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + node</span></span></label></li>
-            <li data-recommended><label style="display:contents;"><input type="radio" name="stack" value="ts-next"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + next.js</span><span class="opt-rec"><strong>recommended</strong> — biggest ecosystem, easiest hosting, fastest from zero to deployed for a web project</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="stack" value="python"><span class="mark"></span><span class="opt-body"><span class="opt-text">python</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="stack" value="rust"><span class="mark"></span><span class="opt-body"><span class="opt-text">rust</span></span></label></li>
+            <li><label><input type="radio" name="stack" value="go"><span class="mark"></span><span class="opt-body"><span class="opt-text">go</span></span></label></li>
+            <li><label><input type="radio" name="stack" value="ts-node"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + node</span></span></label></li>
+            <li data-recommended><label><input type="radio" name="stack" value="ts-next"><span class="mark"></span><span class="opt-body"><span class="opt-text">typescript + next.js</span><span class="opt-rec"><strong>recommended</strong> — biggest ecosystem, easiest hosting, fastest from zero to deployed for a web project</span></span></label></li>
+            <li><label><input type="radio" name="stack" value="python"><span class="mark"></span><span class="opt-body"><span class="opt-text">python</span></span></label></li>
+            <li><label><input type="radio" name="stack" value="rust"><span class="mark"></span><span class="opt-body"><span class="opt-text">rust</span></span></label></li>
             <li data-other><label><input type="radio" name="stack" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="stack" placeholder="describe..." disabled></li>
-            <li data-defer><label style="display:contents;"><input type="radio" name="stack" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
+            <li data-defer><label><input type="radio" name="stack" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
           </ul>
         </div>
 
@@ -502,12 +500,12 @@
             <p>If you're not sure, defer — claude will pick what fits the project.</p>
           </div>
           <ul class="opts" data-type="check" data-q="data storage">
-            <li data-recommended><label style="display:contents;"><input type="checkbox" name="storage" value="postgres"><span class="mark"></span><span class="opt-body"><span class="opt-text">postgres</span><span class="opt-rec"><strong>recommended</strong> — relational, mature, handles millions of rows without tuning, runs anywhere</span></span></label></li>
-            <li><label style="display:contents;"><input type="checkbox" name="storage" value="sqlite"><span class="mark"></span><span class="opt-body"><span class="opt-text">sqlite</span></span></label></li>
-            <li><label style="display:contents;"><input type="checkbox" name="storage" value="redis"><span class="mark"></span><span class="opt-body"><span class="opt-text">redis</span></span></label></li>
-            <li><label style="display:contents;"><input type="checkbox" name="storage" value="files"><span class="mark"></span><span class="opt-body"><span class="opt-text">flat files</span></span></label></li>
+            <li data-recommended><label><input type="checkbox" name="storage" value="postgres"><span class="mark"></span><span class="opt-body"><span class="opt-text">postgres</span><span class="opt-rec"><strong>recommended</strong> — relational, mature, handles millions of rows without tuning, runs anywhere</span></span></label></li>
+            <li><label><input type="checkbox" name="storage" value="sqlite"><span class="mark"></span><span class="opt-body"><span class="opt-text">sqlite</span></span></label></li>
+            <li><label><input type="checkbox" name="storage" value="redis"><span class="mark"></span><span class="opt-body"><span class="opt-text">redis</span></span></label></li>
+            <li><label><input type="checkbox" name="storage" value="files"><span class="mark"></span><span class="opt-body"><span class="opt-text">flat files</span></span></label></li>
             <li data-other><label><input type="checkbox" name="storage" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="storage" placeholder="describe..." disabled></li>
-            <li data-defer><label style="display:contents;"><input type="checkbox" name="storage" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
+            <li data-defer><label><input type="checkbox" name="storage" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
           </ul>
         </div>
 
@@ -531,12 +529,12 @@
           <label class="q-label">done-ness for v0.1</label>
           <span class="q-hint">how you'll know v0.1 is finished — what counts as "shipped" for you</span>
           <ul class="opts" data-type="radio" data-q="v0.1 done">
-            <li><label style="display:contents;"><input type="radio" name="done" value="self"><span class="mark"></span><span class="opt-body"><span class="opt-text">i can use it daily myself</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="done" value="ten"><span class="mark"></span><span class="opt-body"><span class="opt-text">10 friends can sign up and use it</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="done" value="public"><span class="mark"></span><span class="opt-body"><span class="opt-text">it's publicly launched</span></span></label></li>
-            <li><label style="display:contents;"><input type="radio" name="done" value="paid"><span class="mark"></span><span class="opt-body"><span class="opt-text">someone has paid for it</span></span></label></li>
+            <li><label><input type="radio" name="done" value="self"><span class="mark"></span><span class="opt-body"><span class="opt-text">i can use it daily myself</span></span></label></li>
+            <li><label><input type="radio" name="done" value="ten"><span class="mark"></span><span class="opt-body"><span class="opt-text">10 friends can sign up and use it</span></span></label></li>
+            <li><label><input type="radio" name="done" value="public"><span class="mark"></span><span class="opt-body"><span class="opt-text">it's publicly launched</span></span></label></li>
+            <li><label><input type="radio" name="done" value="paid"><span class="mark"></span><span class="opt-body"><span class="opt-text">someone has paid for it</span></span></label></li>
             <li data-other><label><input type="radio" name="done" value="__other__"><span class="mark"></span><span class="opt-body"><span class="opt-text">something else</span></span></label><input type="text" class="opt-other-input" data-other-for="done" placeholder="describe..." disabled></li>
-            <li data-defer><label style="display:contents;"><input type="radio" name="done" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
+            <li data-defer><label><input type="radio" name="done" value="__defer__"><span class="mark"></span><span class="opt-body"><span class="opt-text">let claude decide</span></span></label></li>
           </ul>
         </div>
       </section>
